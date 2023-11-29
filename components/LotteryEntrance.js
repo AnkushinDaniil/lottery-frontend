@@ -55,20 +55,15 @@ export default function LotteryEntrance() {
         // }
     }
 
-    // if (isWeb3Enabled) {
-    //     const lotteryContract = new ethers.Contract(lotteryAddress, abi, web3)
-    //     lotteryContract.on("*", (event) => {
-    //         console.log(event)
-    //         // await tx.wait(1)
-    //         updateUIValues()
-    //     })
-    // }
+    const checkForWinner = async () => {
+        return await getRecentWinner()
+    }
 
     useEffect(() => {
         if (isWeb3Enabled) {
             updateUIValues()
         }
-    }, [isWeb3Enabled])
+    }, [isWeb3Enabled, checkForWinner])
 
     const handleSuccess = async (tx) => {
         await tx.wait(1)
