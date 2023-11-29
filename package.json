@@ -17,10 +17,11 @@
     "web3uikit": "^0.1.159"
   },
   "devDependencies": {
+    "autoprefix": "^1.0.1",
     "autoprefixer": "^10.4.4",
     "eslint": "8.13.0",
     "eslint-config-next": "12.1.5",
-    "postcss": "^8.4.12",
-    "tailwindcss": "^3.0.24"
+    "postcss": "^8.4.31",
+    "tailwindcss": "^3.3.5"
   }
 }
