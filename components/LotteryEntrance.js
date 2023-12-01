@@ -5,10 +5,8 @@ import { ethers } from "ethers"
 import { useNotification } from "web3uikit"
 
 export default function LotteryEntrance() {
-    const { chainId: chainIdHex, isWeb3Enabled, web3 } = useMoralis()
+    const { chainId: chainIdHex, isWeb3Enabled } = useMoralis()
     const chainId = parseInt(chainIdHex)
-    const lotteryAddress =
-        chainId in contractAddresses ? contractAddresses[chainId][0] : null
 
     const [entranceFee, setEntranceFee] = useState("0")
     const [numberOfPlayers, setNumberOfPlayers] = useState("0")
@@ -48,17 +46,30 @@ export default function LotteryEntrance() {
         params: [],
     })
 
+    /**
+     * @dev UI parameter check added to avoid error when changing chainId
+     */
     async function updateUIValues() {
-        // if (isWeb3Enabled && lotteryAddress) {
-        const entranceFeeFromCall = (await getEntranceFee()).toString()
-        const numberOfPlayersFromCall = (await getNumberOfPlayers()).toString()
-        const recentWinnerFromCall = (await getRecentWinner()).toString()
-        setEntranceFee(entranceFeeFromCall)
-        setNumberOfPlayers(numberOfPlayersFromCall)
-        setRecentWinner(recentWinnerFromCall)
-        // }
+        if (isWeb3Enabled && contractAddresses[chainId]) {
+            const entranceFeeFromCall = await getEntranceFee()
+            const numberOfPlayersFromCall = await getNumberOfPlayers()
+            const recentWinnerFromCall = await getRecentWinner()
+            if (
+                entranceFeeFromCall &&
+                numberOfPlayersFromCall &&
+                recentWinnerFromCall
+            ) {
+                setEntranceFee(entranceFeeFromCall.toString())
+                setNumberOfPlayers(numberOfPlayersFromCall.toString())
+                setRecentWinner(recentWinnerFromCall.toString())
+            }
+        }
     }
 
+    /**
+     *
+     * @returns checkForWinner function added to update the "Recent winner" field
+     */
     const checkForWinner = async () => {
         return await getRecentWinner()
     }
@@ -69,9 +80,17 @@ export default function LotteryEntrance() {
         }
     }, [isWeb3Enabled, checkForWinner])
 
+    useEffect(() => {
+        console.log(`Current chainId is ${chainId.toString()}`)
+        console.log(
+            `Current lottery address is ${contractAddresses[
+                chainId
+            ].toString()}`
+        )
+    }, [chainId])
+
     const handleSuccess = async (tx) => {
         await tx.wait(1)
-
         handleSuccessNotification(tx)
         updateUIValues()
     }
@@ -88,7 +107,7 @@ export default function LotteryEntrance() {
 
     return (
         <div className="p-5">
-            {lotteryAddress ? (
+            {contractAddresses[chainId] ? (
                 <div>
                     <button
                         className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg ml-auto"
@@ -114,7 +133,7 @@ export default function LotteryEntrance() {
                         )} ETH{" "}
                     </div>
                     <div>Number of players: {numberOfPlayers}</div>
-                    <div>Recenr winner: {recentWinner}</div>
+                    <div>Recent winner: {recentWinner}</div>
                 </div>
             ) : (
                 <div>No lottery address detached</div>

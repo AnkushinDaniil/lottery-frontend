@@ -1,14 +1,14 @@
 import Head from "next/head"
 import styles from "../styles/Home.module.css"
 import Header from "../components/Header"
-// import ManualHeader from "../components/ManualHeader"
+import ManualHeader from "../components/ManualHeader"
 import LotteryEntrance from "../components/LotteryEntrance"
-// import { useMoralis } from "react-moralis"
+import { useMoralis } from "react-moralis"
 
-// const supportedChains = ["31337", "11155111"]
+const supportedChains = ["31337", "11155111"]
 
 export default function Home() {
-    // const { isWeb3Enabled, chainId } = useMoralis()
+    const { isWeb3Enabled, chainId } = useMoralis()
 
     return (
         <div className={styles.container}>
@@ -20,7 +20,19 @@ export default function Home() {
                 />
             </Head>
             <Header />
-            <LotteryEntrance />
+            {isWeb3Enabled ? (
+                <div>
+                    {supportedChains.includes(parseInt(chainId).toString()) ? (
+                        <div className="flex flex-row">
+                            <LotteryEntrance className="p-8" />
+                        </div>
+                    ) : (
+                        <div>{`Please switch to a supported chainId. The supported Chain Ids are: ${supportedChains}`}</div>
+                    )}
+                </div>
+            ) : (
+                <div>Please connect to a Wallet</div>
+            )}
         </div>
     )
 }
